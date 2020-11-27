@@ -16,6 +16,12 @@ provider "google" {
   zone    = var.zone_name
 }
 
+resource "google_compute_address" "webserver" {
+  count = var.ip_count
+  name = "webserver-address-${count.index}"
+  region = var.region_name
+}
+
 resource "google_compute_network" "vpc_network" {
   name = "terraform-network"
   auto_create_subnetworks = "true"
@@ -39,6 +45,7 @@ resource "google_compute_instance" "webserver" {
       # A default network is created for all GCP projects
       network = "default"
       access_config {
+        nat_ip = google_compute_address.webserver.address
     }
   }
 

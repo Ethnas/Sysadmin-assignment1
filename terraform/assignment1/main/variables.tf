@@ -28,3 +28,8 @@ variable "instance_number" {
     type = number
     description = "The number of VM instances you want created"
 }
+
+variable "ip_count" {
+    type = number
+    description = "The number of ip addresses to create"
+}
