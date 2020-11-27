@@ -23,3 +23,7 @@ variable "username" {
     type = string
     default = "erlendniko@gmail.com"
 }
+
+variable "instance_number" {
+    description = "The number of VM instances you want created"
+}

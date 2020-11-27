@@ -16,13 +16,18 @@ provider "google" {
   zone    = var.zone_name
 }
 
+resource "google_compute_address" "webserver" {
+  name = "tf-webserver-address"
+}
+
 resource "google_compute_network" "vpc_network" {
   name = "terraform-network"
   auto_create_subnetworks = "true"
 }
 
 resource "google_compute_instance" "webserver" {
-  name         = "terraform-webserver"
+  count = var.instance_number
+  name         = "terraform-webserver-${count.index}"
   machine_type = "e2-small"
 
   metadata = {
