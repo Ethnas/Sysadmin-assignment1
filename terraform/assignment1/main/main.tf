@@ -58,7 +58,7 @@ resource "google_compute_instance" "web_server" {
 	connection {
 	 type = "ssh"
 	 user = "erlendniko@gmail.com"
-	 host = google_compute_instance.web_server.network_interface[0].access_config[0].nat_ip
+	 host = google_compute_instance.web_server.network_interface.0.access_config.0.nat_ip
 	 timeout = "1m"
 	 private_key = file("service-privatekey")
 	}
