@@ -27,6 +27,20 @@ resource "google_compute_network" "vpc_network" {
   auto_create_subnetworks = "true"
 }
 
+resource "google_compute_firewall" "default" {
+  name    = "apache-firewall"
+  network = "default"
+ 
+  allow {
+    protocol = "tcp"
+    ports    = ["80","443"]
+  }
+ 
+  allow {
+    protocol = "icmp"
+  }
+}
+
 resource "google_compute_instance" "webserver" {
   count = var.instance_number
   name         = "terraform-webserver-${count.index}"
@@ -61,17 +75,17 @@ resource "google_compute_instance" "webserver" {
   }
 
   # Run script for installing Apache web server
-    provisioner "remote-exec" {
-	    script = "../scripts/webserver.sh"
-	    connection {
-	      type = "ssh"
-        host = google_compute_address.webserver[count.index].address
-	      user = var.username
-	      timeout = "1m"
-	      private_key = file("ssh-key")
-        #host_key = file("ssh-key.pub")
-	  }
-  }
+  #   provisioner "remote-exec" {
+	#     script = "../scripts/webserver.sh"
+	#     connection {
+	#       type = "ssh"
+  #       host = google_compute_address.webserver.address
+	#       user = var.username
+	#       timeout = "1m"
+	#       private_key = file("ssh-key")
+  #       #host_key = file("ssh-key.pub")
+	#   }
+  # }
 }
 
   
