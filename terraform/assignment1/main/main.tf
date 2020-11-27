@@ -22,10 +22,10 @@ resource "google_compute_address" "webserver" {
   region = var.region_name
 }
 
-resource "google_compute_network" "vpc_network" {
-  name = "terraform-network"
-  auto_create_subnetworks = "true"
-}
+# resource "google_compute_network" "vpc_network" {
+#   name = "terraform-network"
+#   auto_create_subnetworks = "true"
+# }
 
 resource "google_compute_firewall" "default" {
   name    = "apache-firewall"
@@ -68,24 +68,28 @@ resource "google_compute_instance" "webserver" {
 	    command = "echo ${google_compute_instance.webserver[0].name} ${google_compute_instance.webserver[0].network_interface[0].access_config[0].nat_ip} >> ip_address.txt"
   }
 
+  provisioner "local-exec" {
+    command = "echo ${google_compute_address.webserver[count.index].address}"
+  }
+
   # Copies a script to the vm
     provisioner "file" {
 	    source = "../scripts/webserver.sh"
 	    destination = "/etc/webserver.sh"
   }
 
-  # Run script for installing Apache web server
-  #   provisioner "remote-exec" {
-	#     script = "../scripts/webserver.sh"
-	#     connection {
-	#       type = "ssh"
-  #       host = google_compute_address.webserver.address
-	#       user = var.username
-	#       timeout = "1m"
-	#       private_key = file("ssh-key")
-  #       #host_key = file("ssh-key.pub")
-	#   }
-  # }
+  #Run script for installing Apache web server
+    provisioner "remote-exec" {
+	    script = "../scripts/webserver.sh"
+	    connection {
+	      type = "ssh"
+        host = google_compute_address.webserver[count.index].address
+	      user = var.username
+	      timeout = "1m"
+	      private_key = file("ssh-key")
+        #host_key = file("ssh-key.pub")
+	  }
+  }
 }
 
   
