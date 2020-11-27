@@ -76,6 +76,14 @@ resource "google_compute_instance" "webserver" {
     provisioner "file" {
 	    source = "../scripts/webserver.sh"
 	    destination = "/etc/webserver.sh"
+      connection {
+	      type = "ssh"
+        host = google_compute_address.webserver[count.index].address
+	      user = var.username
+	      timeout = "1m"
+	      private_key = file("ssh-key")
+        #host_key = file("ssh-key.pub")
+	  }
   }
 
   #Run script for installing Apache web server
