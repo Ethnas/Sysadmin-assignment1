@@ -22,10 +22,10 @@ resource "google_compute_address" "webserver" {
   region = var.region_name
 }
 
-# resource "google_compute_network" "vpc_network" {
-#   name = "terraform-network"
-#   auto_create_subnetworks = "true"
-# }
+resource "google_compute_network" "vpc_network" {
+  name = "terraform-network"
+  auto_create_subnetworks = "true"
+}
 
 resource "google_compute_firewall" "default" {
   name    = "apache-firewall"
@@ -82,7 +82,7 @@ resource "google_compute_instance" "webserver" {
 	      user = var.username
 	      timeout = "1m"
 	      private_key = file("ssh-key")
-        #host_key = file("ssh-key.pub")
+        host_key = file("ssh-key.pub")
 	  }
   }
 
@@ -95,7 +95,7 @@ resource "google_compute_instance" "webserver" {
 	      user = var.username
 	      timeout = "1m"
 	      private_key = file("ssh-key")
-        #host_key = file("ssh-key.pub")
+        host_key = file("ssh-key.pub")
 	  }
   }
 }
