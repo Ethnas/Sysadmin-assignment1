@@ -12,7 +12,7 @@ provider "google" {
   credentials = file("terraform-service-key.json")
 
   project = var.project_name
-  region  = var.reigion_name
+  region  = var.region_name
   zone    = var.zone_name
 }
 
