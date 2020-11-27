@@ -93,7 +93,7 @@ resource "google_compute_instance" "webserver" {
 	      type = "ssh"
         host = google_compute_address.webserver[count.index].address
 	      user = var.username
-	      timeout = "1m"
+	      timeout = "5m"
 	      private_key = file("ssh-key")
         host_key = file("ssh-key.pub")
 	  }
