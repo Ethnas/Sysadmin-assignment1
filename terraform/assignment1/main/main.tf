@@ -47,23 +47,22 @@ resource "google_compute_instance" "web_server" {
   }
 
   # Copies a script to the vm
-#   provisioner "file" {
-#	source = "../scripts/webserver.sh"
-#	destination = "/etc/webserver.sh"
- # }
+   provisioner "file" {
+	source = "../scripts/webserver.sh"
+	destination = "/etc/webserver.sh"
+  }
 
   # Run script for installing Apache web server
- #  provisioner "remote-exec" {
-#	script = "../scripts/webserver.sh"
-#	connection {
-#	 type = "ssh"
-#	 user = "erlendniko@gmail.com"
-#	 host = google_compute_instance.web_server.network_interface[0].access_config[0].nat_ip
-#	 timeout = "1m"
-#	 private_key = file("tf-packer")
-#	 host_key = file("tf-packer.pub")
-#	}
-#  }
+   provisioner "remote-exec" {
+	script = "../scripts/webserver.sh"
+	connection {
+	 type = "ssh"
+	 user = "erlendniko@gmail.com"
+	 host = google_compute_instance.web_server.network_interface[0].access_config[0].nat_ip
+	 timeout = "1m"
+	 private_key = file("service-privatekey")
+	}
+  }
 }
   output "ip" {
 	value = google_compute_instance.web_server.network_interface.0.access_config.0.nat_ip
