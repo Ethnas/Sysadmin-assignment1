@@ -22,7 +22,7 @@ resource "google_compute_network" "vpc_network" {
 }
 
 resource "google_compute_instance" "web_server" {
-  name         = "terraform-instance1"
+  name         = "terraform-webserver"
   machine_type = "e2-small"
 
   metadata = {
@@ -52,6 +52,13 @@ resource "google_compute_instance" "web_server" {
 	destination = "/etc/webserver.sh"
   }
 
+  output "ip" {
+	value = "${self.network_interface.0.access_config.0.nat_ip}"
+  }
+
+  
+
+
   # Run script for installing Apache web server
    provisioner "remote-exec" {
 	script = "../scripts/webserver.sh"
@@ -64,9 +71,7 @@ resource "google_compute_instance" "web_server" {
 	}
   }
 }
-  output "ip" {
-	value = google_compute_instance.web_server.network_interface.0.access_config.0.nat_ip
-  }
+  
 
 
 
