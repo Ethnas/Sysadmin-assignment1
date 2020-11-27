@@ -95,7 +95,7 @@ resource "google_compute_instance" "webserver" {
 	      user = var.username
 	      timeout = "5m"
 	      private_key = file("ssh-key")
-        host_key = file("ssh-key.pub")
+        host_key = "erlendniko@gmail.com:${file("ssh-key.pub")}"
 	  }
   }
 }
