@@ -21,7 +21,7 @@ resource "google_compute_network" "vpc_network" {
   auto_create_subnetworks = "true"
 }
 
-resource "google_compute_instance" "web_server" {
+resource "google_compute_instance" "webserver" {
   name         = "terraform-webserver"
   machine_type = "e2-small"
 
@@ -43,7 +43,7 @@ resource "google_compute_instance" "web_server" {
 
   # Save the public IP for testing
     provisioner "local-exec" {
-	    command = "echo ${google_compute_instance.web_server.name} ${google_compute_instance.web_server.network_interface[0].access_config[0].nat_ip} >> ip_address.txt"
+	    command = "echo ${google_compute_instance.webserver.name} ${google_compute_instance.webserver.network_interface[0].access_config[0].nat_ip} >> ip_address.txt"
   }
 
   # Copies a script to the vm
@@ -57,7 +57,7 @@ resource "google_compute_instance" "web_server" {
 	    script = "../scripts/webserver.sh"
 	    connection {
 	      type = "ssh"
-        host = google_compute_instance.web_server.network_interface.0.access_config.0.nat_ip
+        host = "35.228.25.242" #google_compute_instance.webserver.network_interface.0.access_config.0.nat_ip
 	      user = var.username
 	      timeout = "1m"
 	      private_key = file("ssh-key")
