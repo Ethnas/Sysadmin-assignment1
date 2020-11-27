@@ -57,18 +57,13 @@ resource "google_compute_instance" "web_server" {
 	    script = "../scripts/webserver.sh"
 	    connection {
 	      type = "ssh"
-        host = "${google_compute_instance.web_server.network_interface.0.access_config.0.nat_ip}"
+        host = google_compute_instance.web_server.network_interface.0.access_config.0.nat_ip
 	      user = var.username
 	      timeout = "1m"
-	      private_key = "${file("ssh-key")}"
+	      private_key = file("ssh-key")
         #host_key = file("ssh-key.pub")
 	  }
   }
-}
-
-# We create a public IP address for our google compute instance to utilize
-resource "google_compute_address" "static" {
-  name = "vm-public-address"
 }
 
   
