@@ -25,5 +25,6 @@ variable "username" {
 }
 
 variable "instance_number" {
+    type = number
     description = "The number of VM instances you want created"
 }
