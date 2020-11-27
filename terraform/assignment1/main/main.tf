@@ -45,7 +45,7 @@ resource "google_compute_instance" "webserver" {
       # A default network is created for all GCP projects
       network = "default"
       access_config {
-        nat_ip = google_compute_address.webserver.address
+        nat_ip = google_compute_address.webserver[count.index].address
     }
   }
 
