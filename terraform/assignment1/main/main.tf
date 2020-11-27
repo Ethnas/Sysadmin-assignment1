@@ -34,43 +34,36 @@ resource "google_compute_instance" "web_server" {
       image = var.image_name
     }
   }
-  network_interface {
-    # A default network is created for all GCP projects
-    network = "default"
-    access_config {
-      nat_ip = google_compute_address.static.address
+    network_interface {
+      # A default network is created for all GCP projects
+      network = "default"
+      access_config {
+        nat_ip = google_compute_address.static.address
     }
   }
 
   # Save the public IP for testing
     provisioner "local-exec" {
-	command = "echo ${google_compute_instance.web_server.name} ${google_compute_instance.web_server.network_interface[0].access_config[0].nat_ip} >> ip_address.txt"
+	    command = "echo ${google_compute_instance.web_server.name} ${google_compute_instance.web_server.network_interface[0].access_config[0].nat_ip} >> ip_address.txt"
   }
 
   # Copies a script to the vm
-   provisioner "file" {
-	source = "../scripts/webserver.sh"
-	destination = "/etc/webserver.sh"
+    provisioner "file" {
+	    source = "../scripts/webserver.sh"
+	    destination = "/etc/webserver.sh"
   }
-
-  output "ip" {
-	value = self.network_interface.0.access_config.0.nat_ip
-  }
-
-
-
 
   # Run script for installing Apache web server
-   provisioner "remote-exec" {
-	script = "../scripts/webserver.sh"
-	connection {
-	 type = "ssh"
-   host = google_compute_address.static.address
-	 user = var.username
-	 timeout = "1m"
-	 private_key = file("ssh-key")
-   host_key = file("ssh-key.pub")
-	}
+    provisioner "remote-exec" {
+	    script = "../scripts/webserver.sh"
+	    connection {
+	      type = "ssh"
+        host = google_compute_address.static.address
+	      user = var.username
+	      timeout = "1m"
+	      private_key = file("ssh-key")
+        host_key = file("ssh-key.pub")
+	  }
   }
 }
 
