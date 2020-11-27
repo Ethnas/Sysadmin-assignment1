@@ -1,0 +1,6 @@
+terraform-instance1 35.228.229.40
+terraform-instance1 35.228.113.193
+terraform-instance1 35.228.173.134
+terraform-instance1 35.228.113.193
+terraform-instance1 35.228.229.40
+terraform-instance1 35.228.173.134

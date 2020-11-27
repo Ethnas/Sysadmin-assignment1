@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "test-ansible-291511",
+  "private_key_id": "ac33a78409eb853ea481c4016d67a14579463f81",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDfocMvcIejHG0s\nQUWPyq7Tiy14LrGH6KvDfAUL9zJU/LjhtuIarH7WEExJQUsmXv0Q2twuJE9pgKLI\nJ4pWuiwAF8eSGGML4joBOUWD2lTWzGdYS2VT5wuO1yWZwphqV/HXVLj2bXJeK8JI\nAigO+n8LxnigSaTp8S1jT4hK7xggFe7b6u9yccewTJm3bT07QpXWtB5PTIWR5XVp\n6SuQ3FP3H0RNGciniHBPmnILUvS30QiWYHC+2S1gXeQgkpbjWqBzcJqvXkaArURI\nozqryV47tAAk1+M8GRlvEmB+C79EEhcAEwWtn+BdzNpELCD2/wwV7rEyMuW5kRzE\n8ipSvIA7AgMBAAECggEACAvT8AMGflHpg6wdipzqSWY6jpZvgMpYU8JElDeisfgd\n1tEztW37akxP0lrtD0ZfqJmXTnmz+cHNGZKCobg1GRPB9Hm4JpdPKvgajjHu14On\nPEAKN0ia29rV2YBs53aelvbPaN5rPQQqC1k4g8FzjMLpWCsOKfSpg2c7KicMIStX\noL8OeP5AQFstWY81E8etXo8yPsj3cmWK8nyzvrSITPOpPUbALufq4jEUJlsjthFR\nExdlmpg79NMIsOoubkvBv9S6/Pa/XeoKdc53Pzu6C2RAFKE7iw/mOCCbu/ZrFObv\nHgFG4USOnG5AtuNNRMITvGcko8LlJIIP7QJyPDLrAQKBgQD3BNUfCqbijZuQtUCv\nEBw1hCoNg1Uc/WSwThnhgrwcFzejOYk4EkP6G6FRZtRr+SYVc9Crjk2GJBW5mYof\nxooM2mbf0A1ey2P7CNjwmtq4mRdxnJmNOEBfMHJh+8jSj/OEGXBgJSEg/9MLHGrX\nI192le4x/aAnEH3Bpyo637CWewKBgQDnw0B0/KrXY+S+q0KiQTcwF9oZs4QV6+Z1\nonhpK2ihrKpgfHDsCI3gJvMCvVMZqKAvq70TW8XI/kqbcTmbwZkz4wdAqNgkppXk\nu6w158nQEmczBgnFX1H3QZMyxqRN1f2RR28XCOHF/bEpk3OJqESNMmPUqFsPf7CD\nYwGOwU5xQQKBgHlxKsYkGn/vVrgCJFbs+LFm1LXoB4RFH6d9/kNcXtcAox3gP5IN\niNYBl4HJqE2dJBgP5FszjvGP9A5XagzNMzm2djU6uBgOrozQgLdpqnZu7ZOxhdxj\n92HVE6cQfl7m3rXnO9RI7MyoeT1RL0Wt4lUOyRhStNX/yZPXd2+SYeLZAoGBAIW/\ns2oQCpPEzVSPxyOWGUBC85XTeI2iFtyaR30CFR8AY07NYemFQkMylxlkoxlyrAb2\nyGXsl2bYAbxVClbt0fkUsrHI/vufu29GMyrkuh2/ERlsCaWCze2wRT+PTXCx5uS5\nYc3cTVcSgfQpaQrvNah6hQxLoEmAeiBIubRlsFxBAoGANh5lJCAlOI+rZHOGer8T\n2MLqLA+KvqXIZNThBJAsv9XWAITHAbqjHUzXs0+Q649Sk4azLRH7MbO04RcQxhIE\nxrnGY+vE8QbiFJ9CQowAy9CS4vuMvky5xJ7fkjeeivBb+aurQLxBolYPUARpY3oZ\nq/phdAOMxmhJuibF56lx72I=\n-----END PRIVATE KEY-----\n",
+  "client_email": "terraform@test-ansible-291511.iam.gserviceaccount.com",
+  "client_id": "116204243300128070656",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/terraform%40test-ansible-291511.iam.gserviceaccount.com"
+}
