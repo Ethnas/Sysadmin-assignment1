@@ -48,7 +48,7 @@ resource "google_compute_instance" "webserver" {
 
   # Save the public IP for testing
     provisioner "local-exec" {
-	    command = "echo ${google_compute_instance.webserver.name} ${google_compute_instance.webserver.network_interface[0].access_config[0].nat_ip} >> ip_address.txt"
+	    command = "echo ${google_compute_instance.webserver.*.name} ${google_compute_instance.webserver.*.network_interface[0].access_config[0].nat_ip} >> ip_address.txt"
   }
 
   # Copies a script to the vm
