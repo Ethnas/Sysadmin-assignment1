@@ -48,7 +48,7 @@ resource "google_compute_instance" "webserver" {
 
   # Save the public IP for testing
     provisioner "local-exec" {
-	    command = "echo ${google_compute_instance.webserver.*.name} ${google_compute_instance.webserver.*.network_interface[0].access_config[0].nat_ip} >> ip_address.txt"
+	    command = "echo ${google_compute_instance.webserver[0].name} ${google_compute_instance.webserver[0].network_interface[0].access_config[0].nat_ip} >> ip_address.txt"
   }
 
   # Copies a script to the vm
@@ -62,7 +62,7 @@ resource "google_compute_instance" "webserver" {
 	    script = "../scripts/webserver.sh"
 	    connection {
 	      type = "ssh"
-        host = google_compute_address.webserver.address
+        host = google_compute_instance.webserver.*.network_interface.0.access_config.0.nat_ip
 	      user = var.username
 	      timeout = "1m"
 	      private_key = file("ssh-key")
