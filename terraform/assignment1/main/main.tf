@@ -58,7 +58,7 @@ resource "google_compute_instance" "web_server" {
 	    script = "../scripts/webserver.sh"
 	    connection {
 	      type = "ssh"
-        host = google_compute_address.static.address
+        host = google_compute_instance.web_server.network_interface[0].access_config[0].nat_ip
 	      user = var.username
 	      timeout = "1m"
 	      private_key = file("ssh-key")
