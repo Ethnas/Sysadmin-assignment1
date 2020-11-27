@@ -1,5 +1,5 @@
 output "public_ip" {
- value = google_compute_instance.webserver.address
+ value = google_compute_instance.webserver.*.address
 }
 
 output "webserver_ip" {
