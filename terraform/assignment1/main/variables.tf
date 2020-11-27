@@ -6,7 +6,7 @@ variable "image_name" {
 
 variable "project_name" {
     type = string
-    default = "test-ansible"
+    default = "test-ansible-291511"
 }
 
 variable "region_name" {
