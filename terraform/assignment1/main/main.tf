@@ -11,9 +11,9 @@ provider "google" {
 
   credentials = file("terraform-service-key.json")
 
-  project = "test-ansible-291511"
-  region  = "europe-north1"
-  zone    = "europe-north1-a"
+  project = var.project_name
+  region  = var.reigion_name
+  zone    = var.zone_name
 }
 
 resource "google_compute_network" "vpc_network" {
@@ -26,18 +26,19 @@ resource "google_compute_instance" "web_server" {
   machine_type = "e2-small"
 
   metadata = {
-	ssh-keys = "erlendniko@gmail.com:${file("tf-packer.pub")}"
+	ssh-keys = "erlendniko@gmail.com:${file("ssh-key.pub")}"
   }
 
   boot_disk {
     initialize_params {
-      image = "ubuntu-2004-focal-v20201028"
+      image = var.image_name
     }
   }
   network_interface {
     # A default network is created for all GCP projects
     network = "default"
     access_config {
+      nat_ip = google_compute_address.static.address
     }
   }
 
@@ -56,7 +57,7 @@ resource "google_compute_instance" "web_server" {
 	value = "${self.network_interface.0.access_config.0.nat_ip}"
   }
 
-  
+
 
 
   # Run script for installing Apache web server
@@ -64,13 +65,20 @@ resource "google_compute_instance" "web_server" {
 	script = "../scripts/webserver.sh"
 	connection {
 	 type = "ssh"
-   host = self.network_interface.0.access_config.0.nat_ip
-	 user = "erlendniko@gmail.com"
+   host = google_compute_address.static.address
+	 user = var.username
 	 timeout = "1m"
-	 private_key = file("service-privatekey")
+	 private_key = file("ssh-key")
+   host_key = file("ssh-key.pub")
 	}
   }
 }
+
+# We create a public IP address for our google compute instance to utilize
+resource "google_compute_address" "static" {
+  name = "vm-public-address"
+}
+
   
 
 
