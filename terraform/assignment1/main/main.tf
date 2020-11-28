@@ -1,106 +1,141 @@
 terraform {
   required_providers {
-    google = {
-      source = "hashicorp/google"
+    azurerm = {
+      source = "hashicorp/azurerm"
+      version = ">= 2.26"
     }
   }
 }
 
-provider "google" {
-  version = "3.5.0"
+provider "azurerm" {
+  version = "=2.38.0"
 
-  credentials = file("terraform-service-key.json")
+  subscription_id = "93d67d1d-09d3-4cca-9b39-7cd1ef68c9dd"
+  #client_id = "http://azure-cli-2020-11-28-12-13-13"
+  #client_secret = "dR_rzbGOZRO~gktL72-nYG3TgR1ZsWNafD"
+  #tenant_id = "97a06cc0-13f4-4e3e-a0fe-94153a19823b"
 
-  project = var.project_name
-  region  = var.region_name
-  zone    = var.zone_name
+  features {}
 }
 
-resource "google_compute_address" "webserver" {
-  count = var.ip_count
-  name = "webserver-address-${count.index}"
-  region = var.region_name
+resource "azurerm_resource_group" "myterraformgroup" {
+  name = "myresourcegroup"
+  location = var.location_name
 }
 
-resource "google_compute_network" "vpc_network" {
-  name = "terraform-network"
-  auto_create_subnetworks = "true"
+resource "azurerm_virtual_network" "myterraformnetwork" {
+    name = "myVnet"
+    address_space = [var.address_space]
+    location = var.location_name
+    resource_group_name = azurerm_resource_group.myterraformgroup.name
 }
 
-resource "google_compute_firewall" "default" {
-  name    = "apache-firewall"
-  network = "default"
- 
-  allow {
-    protocol = "tcp"
-    ports    = ["80","443"]
-  }
- 
-  allow {
-    protocol = "icmp"
-  }
+resource "azurerm_subnet" "myterraformsubnet" {
+    name = "mySubnet"
+    resource_group_name = azurerm_resource_group.myterraformgroup.name
+    virtual_network_name = azurerm_virtual_network.myterraformnetwork.name
+    address_prefixes = [var.subnet_address_prefixes]
 }
 
-resource "google_compute_instance" "webserver" {
-  count = var.instance_number
-  name         = "terraform-webserver-${count.index}"
-  machine_type = "e2-small"
+resource "azurerm_public_ip" "myterraformpublicip" {
+    count = var.instance_number
+    name = "myPublicIP-${count.index}"
+    location = var.location_name
+    resource_group_name = azurerm_resource_group.myterraformgroup.name
+    allocation_method = "Dynamic"
+}
 
-  metadata = {
-	ssh-keys = "erlendniko@gmail.com:${file("ssh-key.pub")}"
-  }
+resource "azurerm_network_security_group" "myterraformnsg" {
+    name = "myNetworkSecurityGroup"
+    location = var.location_name
+    resource_group_name = azurerm_resource_group.myterraformgroup.name
 
-  boot_disk {
-    initialize_params {
-      image = var.image_name
+    security_rule {
+        name = "SSH"
+        priority = 1001
+        direction = "Inbound"
+        access = "Allow"
+        protocol = "Tcp"
+        source_port_range = "*"
+        destination_port_range = "22"
+        source_address_prefix = "*"
+        destination_address_prefix = "*"
     }
+
+    security_rule {
+    name                       = "allow-http"
+    description                = "allow-http"
+    priority                   = 110
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "80"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
   }
-    network_interface {
-      # A default network is created for all GCP projects
-      network = "default"
-      access_config {
-        nat_ip = google_compute_address.webserver[count.index].address
+}
+
+resource "azurerm_network_interface" "myterraformnic" {
+    count = var.network_interface_number
+    name = "myNIC-${count.index}"
+    location = var.location_name
+    resource_group_name = azurerm_resource_group.myterraformgroup.name
+
+    ip_configuration {
+        name = "myNicConfiguration"
+        subnet_id = azurerm_subnet.myterraformsubnet.id
+        private_ip_address_allocation = "Dynamic"
+        public_ip_address_id = element(azurerm_public_ip.myterraformpublicip.*.id, count.index)
     }
-  }
+}
 
-  # Save the public IP for testing
-    provisioner "local-exec" {
-	    command = "echo ${google_compute_instance.webserver[0].name} ${google_compute_instance.webserver[0].network_interface[0].access_config[0].nat_ip} >> ip_address.txt"
-  }
+# Connect the security group to the network interface
+resource "azurerm_network_interface_security_group_association" "example" {
+    count = var.network_interface_number
+    network_interface_id      = element(azurerm_network_interface.myterraformnic.*.id, count.index)
+    network_security_group_id = azurerm_network_security_group.myterraformnsg.id
+}
 
-  provisioner "local-exec" {
-    command = "echo ${google_compute_address.webserver[count.index].address}"
-  }
+resource "azurerm_linux_virtual_machine" "webserver" {
+    count = var.instance_number
+    name = "webserver-${count.index}"
+    location = var.location_name
+    resource_group_name   = azurerm_resource_group.myterraformgroup.name
+    network_interface_ids = [element(azurerm_network_interface.myterraformnic.*.id, count.index)]
+    size                  = var.vm_size
 
-  # Copies a script to the vm
-    provisioner "file" {
-	    source = "../scripts/webserver.sh"
-	    destination = "/etc/webserver.sh"
-      connection {
-	      type = "ssh"
-        host = google_compute_address.webserver[count.index].address
-	      user = var.username
-	      timeout = "1m"
-	      private_key = file("ssh-key")
-        host_key = file("ssh-key.pub")
-	  }
-  }
+    os_disk {
+        name = "myOsDisk-${count.index}"
+        caching = "ReadWrite"
+        storage_account_type = "Premium_LRS"
+    }
 
-  #Run script for installing Apache web server
+    source_image_reference {
+        publisher = "Canonical"
+        offer     = "UbuntuServer"
+        sku       = "18.04-LTS"
+        version   = "latest"
+    }
+
+    computer_name  = "webserver-${count.index}"
+    admin_username = var.username
+    disable_password_authentication = true
+
+    admin_ssh_key {
+        username       = var.username
+        public_key     = file("id_rsa.pub")
+    }
+
+    #Run script for installing Apache web server
     provisioner "remote-exec" {
-	    script = "../scripts/webserver.sh"
+	    script = "..\\scripts\\apache.sh"
 	    connection {
 	      type = "ssh"
-        host = google_compute_address.webserver[count.index].address
+        host = azurerm_linux_virtual_machine.webserver[count.index].public_ip_address
 	      user = var.username
-	      timeout = "5m"
-	      private_key = file("ssh-key")
-        host_key = "erlendniko@gmail.com:${file("ssh-key.pub")}"
+	      timeout = "1m"
+	      private_key = file("id_rsa")
 	  }
   }
 }
-
-  
-
-
-
