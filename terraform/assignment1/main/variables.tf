@@ -43,5 +43,5 @@ variable "network_interface_number" {
 variable "vm_size" {
     type = string
     description = "The size of the VM(s) to be created"
-    default = "Standard_D2s_v3"
+    default = "Standard_DS1_v2"
 }

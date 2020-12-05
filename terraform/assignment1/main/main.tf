@@ -36,28 +36,12 @@ resource "azurerm_subnet" "myterraformsubnet" {
     address_prefixes = [var.subnet_address_prefixes]
 }
 
-resource "azurerm_public_ip" "lb_public_ip" {
-    name = "lb-public-ip"
+resource "azurerm_public_ip" "public_ip" {
+    count = var.publicip_number
+    name = "public-ip${count.index}"
     location = var.location_name
     resource_group_name = azurerm_resource_group.myterraformgroup.name
-    allocation_method = "Static"
-}
-
-resource "azurerm_lb" "lb" {
- name                = "loadBalancer"
- location            = var.location_name
- resource_group_name = azurerm_resource_group.myterraformgroup.name
-
- frontend_ip_configuration {
-   name                 = "publicIPAddress"
-   public_ip_address_id = azurerm_public_ip.lb_public_ip.id
- }
-}
-
-resource "azurerm_lb_backend_address_pool" "lb_address_pool" {
- resource_group_name = azurerm_resource_group.myterraformgroup.name
- loadbalancer_id     = azurerm_lb.lb.id
- name                = "BackEndAddressPool"
+    allocation_method = "Dynamic"
 }
 
 resource "azurerm_network_security_group" "myterraformnsg" {
@@ -101,6 +85,7 @@ resource "azurerm_network_interface" "myterraformnic" {
         name = "myNicConfiguration"
         subnet_id = azurerm_subnet.myterraformsubnet.id
         private_ip_address_allocation = "Dynamic"
+        public_ip_address_id = element(azurerm_public_ip.public_ip.*.id, count.index)
     }
 }
 
@@ -113,14 +98,14 @@ resource "azurerm_network_interface_security_group_association" "example" {
 
 resource "azurerm_linux_virtual_machine" "webserver" {
     count = var.webserver_instance_number
-    name = "webserver-${count.index}"
-    location = var.location_name
+    name = "webserver${count.index}"
+    location = azurerm_resource_group.myterraformgroup.location
     resource_group_name   = azurerm_resource_group.myterraformgroup.name
     network_interface_ids = [element(azurerm_network_interface.myterraformnic.*.id, count.index)]
     size                  = var.vm_size
 
     os_disk {
-        name = "myOsDisk-${count.index}"
+        name = "myOsDisk${count.index}"
         caching = "ReadWrite"
         storage_account_type = "Premium_LRS"
     }
@@ -132,7 +117,6 @@ resource "azurerm_linux_virtual_machine" "webserver" {
         version   = "latest"
     }
 
-    computer_name  = "webserver-${count.index}"
     admin_username = var.username
     disable_password_authentication = true
 
@@ -140,13 +124,21 @@ resource "azurerm_linux_virtual_machine" "webserver" {
         username       = var.username
         public_key     = file("id_rsa.pub")
     }
+}
 
-    #Run script for installing Apache web server
+resource "null_resource" "provisioner" {
+  count = var.webserver_instance_number
+
+  triggers = {
+    webserver_ids = element(azurerm_linux_virtual_machine.webserver.*.id, count.index)
+  }
+
+  #Run script for installing Apache web server
     provisioner "remote-exec" {
 	    script = "..\\scripts\\apache.sh"
 	    connection {
 	      type = "ssh"
-        host = azurerm_linux_virtual_machine.webserver[count.index].public_ip_address
+        host = element(azurerm_linux_virtual_machine.webserver.*.public_ip_address, count.index)
 	      user = var.username
 	      timeout = "1m"
 	      private_key = file("id_rsa")
@@ -184,3 +176,4 @@ resource "azurerm_linux_virtual_machine" "webserver" {
 #         public_key     = file("id_rsa.pub")
 #     }
 # }
+
