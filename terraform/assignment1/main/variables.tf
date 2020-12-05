@@ -37,7 +37,7 @@ variable "webserver_instance_number" {
 
 variable "network_interface_number" {
     type = number
-    description = "The number of network intarface you want"
+    description = "The number of network interfaces you want"
 }
 
 variable "vm_size" {
