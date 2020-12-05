@@ -37,12 +37,28 @@ resource "azurerm_subnet" "myterraformsubnet" {
     address_prefixes = [var.subnet_address_prefixes]
 }
 
-resource "azurerm_public_ip" "myterraformpublicip" {
-    count = var.instance_number
-    name = "myPublicIP-${count.index}"
+resource "azurerm_public_ip" "lb_public_ip" {
+    name = "lb-public-ip"
     location = var.location_name
     resource_group_name = azurerm_resource_group.myterraformgroup.name
-    allocation_method = "Dynamic"
+    allocation_method = "Static"
+}
+
+resource "azurerm_lb" "lb" {
+ name                = "loadBalancer"
+ location            = var.location_name
+ resource_group_name = azurerm_resource_group.myterraformgroup.name
+
+ frontend_ip_configuration {
+   name                 = "publicIPAddress"
+   public_ip_address_id = azurerm_public_ip.lb_public_ip.id
+ }
+}
+
+resource "azurerm_lb_backend_address_pool" "lb_address_pool" {
+ resource_group_name = azurerm_resource_group.myterraformgroup.name
+ loadbalancer_id     = azurerm_lb.lb.id
+ name                = "BackEndAddressPool"
 }
 
 resource "azurerm_network_security_group" "myterraformnsg" {
@@ -86,7 +102,6 @@ resource "azurerm_network_interface" "myterraformnic" {
         name = "myNicConfiguration"
         subnet_id = azurerm_subnet.myterraformsubnet.id
         private_ip_address_allocation = "Dynamic"
-        public_ip_address_id = element(azurerm_public_ip.myterraformpublicip.*.id, count.index)
     }
 }
 
@@ -98,7 +113,7 @@ resource "azurerm_network_interface_security_group_association" "example" {
 }
 
 resource "azurerm_linux_virtual_machine" "webserver" {
-    count = var.instance_number
+    count = var.webserver_instance_number
     name = "webserver-${count.index}"
     location = var.location_name
     resource_group_name   = azurerm_resource_group.myterraformgroup.name
@@ -139,3 +154,34 @@ resource "azurerm_linux_virtual_machine" "webserver" {
 	  }
   }
 }
+
+# resource "azurerm_linux_virtual_machine" "client" {
+#     count = var.client_instance_number
+#     name = "client-${count.index}"
+#     location = var.location_name
+#     resource_group_name   = azurerm_resource_group.myterraformgroup.name
+#     network_interface_ids = [element(azurerm_network_interface.myterraformnic.*.id, count.index)]
+#     size                  = var.vm_size
+
+#     os_disk {
+#         name = "myOsDisk-${count.index}"
+#         caching = "ReadWrite"
+#         storage_account_type = "Premium_LRS"
+#     }
+
+#     source_image_reference {
+#         publisher = "Canonical"
+#         offer     = "UbuntuServer"
+#         sku       = "18.04-LTS"
+#         version   = "latest"
+#     }
+
+#     computer_name  = "client-${count.index}"
+#     admin_username = var.username
+#     disable_password_authentication = true
+
+#     admin_ssh_key {
+#         username       = var.username
+#         public_key     = file("id_rsa.pub")
+#     }
+# }
