@@ -36,9 +36,9 @@ resource "azurerm_subnet" "myterraformsubnet" {
     address_prefixes = [var.subnet_address_prefixes]
 }
 
-resource "azurerm_public_ip" "myterraformpublicip" {
-    count = var.instance_number
-    name = "myPublicIP-${count.index}"
+resource "azurerm_public_ip" "public_ip" {
+    count = var.publicip_number
+    name = "public-ip${count.index}"
     location = var.location_name
     resource_group_name = azurerm_resource_group.myterraformgroup.name
     allocation_method = "Dynamic"
@@ -85,7 +85,7 @@ resource "azurerm_network_interface" "myterraformnic" {
         name = "myNicConfiguration"
         subnet_id = azurerm_subnet.myterraformsubnet.id
         private_ip_address_allocation = "Dynamic"
-        public_ip_address_id = element(azurerm_public_ip.myterraformpublicip.*.id, count.index)
+        public_ip_address_id = element(azurerm_public_ip.public_ip.*.id, count.index)
     }
 }
 
@@ -97,15 +97,15 @@ resource "azurerm_network_interface_security_group_association" "example" {
 }
 
 resource "azurerm_linux_virtual_machine" "webserver" {
-    count = var.instance_number
-    name = "webserver-${count.index}"
-    location = var.location_name
+    count = var.webserver_instance_number
+    name = "webserver${count.index}"
+    location = azurerm_resource_group.myterraformgroup.location
     resource_group_name   = azurerm_resource_group.myterraformgroup.name
     network_interface_ids = [element(azurerm_network_interface.myterraformnic.*.id, count.index)]
     size                  = var.vm_size
 
     os_disk {
-        name = "myOsDisk-${count.index}"
+        name = "myOsDisk${count.index}"
         caching = "ReadWrite"
         storage_account_type = "Premium_LRS"
     }
@@ -117,7 +117,6 @@ resource "azurerm_linux_virtual_machine" "webserver" {
         version   = "latest"
     }
 
-    computer_name  = "webserver-${count.index}"
     admin_username = var.username
     disable_password_authentication = true
 
@@ -125,16 +124,56 @@ resource "azurerm_linux_virtual_machine" "webserver" {
         username       = var.username
         public_key     = file("id_rsa.pub")
     }
+}
 
-    #Run script for installing Apache web server
+resource "null_resource" "provisioner" {
+  count = var.webserver_instance_number
+
+  triggers = {
+    webserver_ids = element(azurerm_linux_virtual_machine.webserver.*.id, count.index)
+  }
+
+  #Run script for installing Apache web server
     provisioner "remote-exec" {
 	    script = "..\\scripts\\apache.sh"
 	    connection {
 	      type = "ssh"
-        host = azurerm_linux_virtual_machine.webserver[count.index].public_ip_address
+        host = element(azurerm_linux_virtual_machine.webserver.*.public_ip_address, count.index)
 	      user = var.username
 	      timeout = "1m"
 	      private_key = file("id_rsa")
 	  }
   }
 }
+
+# resource "azurerm_linux_virtual_machine" "client" {
+#     count = var.client_instance_number
+#     name = "client-${count.index}"
+#     location = var.location_name
+#     resource_group_name   = azurerm_resource_group.myterraformgroup.name
+#     network_interface_ids = [element(azurerm_network_interface.myterraformnic.*.id, count.index)]
+#     size                  = var.vm_size
+
+#     os_disk {
+#         name = "myOsDisk-${count.index}"
+#         caching = "ReadWrite"
+#         storage_account_type = "Premium_LRS"
+#     }
+
+#     source_image_reference {
+#         publisher = "Canonical"
+#         offer     = "UbuntuServer"
+#         sku       = "18.04-LTS"
+#         version   = "latest"
+#     }
+
+#     computer_name  = "client-${count.index}"
+#     admin_username = var.username
+#     disable_password_authentication = true
+
+#     admin_ssh_key {
+#         username       = var.username
+#         public_key     = file("id_rsa.pub")
+#     }
+# }
+

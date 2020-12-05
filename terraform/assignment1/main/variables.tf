@@ -1,9 +1,3 @@
-variable "image_name" {
-    type = string
-    description = "The os that will be installed on the VM"
-    default = "ubuntu-2004-focal-v20201028"
-}
-
 variable "location_name" {
     type = string
     default = "North Europe"
@@ -31,18 +25,23 @@ variable "publicip_number" {
     description = "The number of public ips you want"
 }
 
-variable "instance_number" {
+variable "webserver_instance_number" {
     type = number
-    description = "The number of VM instances you want created"
+    description = "The number of webserver VM instances you want created"
 }
+
+# variable "client_instance_number" {
+#     type = number
+#     description = "The number of client VM instances you want created"
+# }
 
 variable "network_interface_number" {
     type = number
-    description = "The number of network intarface you want"
+    description = "The number of network interfaces you want"
 }
 
 variable "vm_size" {
     type = string
     description = "The size of the VM(s) to be created"
-    default = "Standard_D2s_v3"
+    default = "Standard_DS1_v2"
 }
