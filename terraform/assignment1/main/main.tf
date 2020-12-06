@@ -10,9 +10,6 @@ terraform {
 provider "azurerm" {
 
   subscription_id = "93d67d1d-09d3-4cca-9b39-7cd1ef68c9dd"
-  #client_id = "http://azure-cli-2020-11-28-12-13-13"
-  #client_secret = "dR_rzbGOZRO~gktL72-nYG3TgR1ZsWNafD"
-  #tenant_id = "97a06cc0-13f4-4e3e-a0fe-94153a19823b"
 
   features {}
 }
